@@ -71,27 +71,27 @@ Group: Development/Languages
 # UCD: some of enc/trans/**/*.src
 License: (Ruby or BSD) and Public Domain and MIT and CC0 and zlib and UCD
 URL: http://ruby-lang.org/
-Source0: ftp://ftp.ruby-lang.org/pub/%{name}/%{major_minor_version}/%{ruby_archive}.tar.xz
-Source1: operating_system.rb
+Source0: https://cache.ruby-lang.org/pub/%{name}/%{major_minor_version}/%{ruby_archive}.tar.xz
+Source1: ruby/operating_system.rb
 # TODO: Try to push SystemTap support upstream.
-Source2: libruby.stp
-Source3: ruby-exercise.stp
-Source4: macros.ruby
-Source5: macros.rubygems
-Source6: abrt_prelude.rb
+Source2: ruby/libruby.stp
+Source3: ruby/ruby-exercise.stp
+Source4: ruby/macros.ruby
+Source5: ruby/macros.rubygems
+Source6: ruby/abrt_prelude.rb
 # This wrapper fixes https://bugzilla.redhat.com/show_bug.cgi?id=977941
 # Hopefully, it will get removed soon:
 # https://fedorahosted.org/fpc/ticket/312
 # https://bugzilla.redhat.com/show_bug.cgi?id=977941
-Source7: config.h
+Source7: ruby/config.h
 # RPM dependency generators.
-Source8: rubygems.attr
-Source9: rubygems.req
-Source10: rubygems.prov
+Source8: ruby/rubygems.attr
+Source9: ruby/rubygems.req
+Source10: ruby/rubygems.prov
 # ABRT hoook test case.
-Source12: test_abrt.rb
+Source12: ruby/test_abrt.rb
 # SystemTap tests.
-Source13: test_systemtap.rb
+Source13: ruby/test_systemtap.rb
 
 # The load directive is supported since RPM 4.12, i.e. F21+. The build process
 # fails on older Fedoras.
@@ -100,40 +100,40 @@ Source13: test_systemtap.rb
 
 # Fix ruby_version abuse.
 # https://bugs.ruby-lang.org/issues/11002
-Patch0: ruby-2.3.0-ruby_version.patch
+Patch0: ruby/ruby-2.3.0-ruby_version.patch
 # http://bugs.ruby-lang.org/issues/7807
-Patch1: ruby-2.1.0-Prevent-duplicated-paths-when-empty-version-string-i.patch
+Patch1: ruby/ruby-2.1.0-Prevent-duplicated-paths-when-empty-version-string-i.patch
 # Allows to override libruby.so placement. Hopefully we will be able to return
 # to plain --with-rubyarchprefix.
 # http://bugs.ruby-lang.org/issues/8973
-Patch2: ruby-2.1.0-Enable-configuration-of-archlibdir.patch
+Patch2: ruby/ruby-2.1.0-Enable-configuration-of-archlibdir.patch
 # Force multiarch directories for i.86 to be always named i386. This solves
 # some differencies in build between Fedora and RHEL.
-Patch3: ruby-2.1.0-always-use-i386.patch
+Patch3: ruby/ruby-2.1.0-always-use-i386.patch
 # Allows to install RubyGems into custom directory, outside of Ruby's tree.
 # http://bugs.ruby-lang.org/issues/5617
-Patch4: ruby-2.1.0-custom-rubygems-location.patch
+Patch4: ruby/ruby-2.1.0-custom-rubygems-location.patch
 # Make mkmf verbose by default
-Patch5: ruby-1.9.3-mkmf-verbose.patch
+Patch5: ruby/ruby-1.9.3-mkmf-verbose.patch
 # Adds support for '--with-prelude' configuration option. This allows to built
 # in support for ABRT.
 # http://bugs.ruby-lang.org/issues/8566
-Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
+Patch6: ruby/ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
 # Use miniruby to regenerate prelude.c.
 # https://bugs.ruby-lang.org/issues/10554
-Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
+Patch7: ruby/ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # Workaround "an invalid stdio handle" error on PPC, due to recently introduced
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
-Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
+Patch9: ruby/ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # Revert experimental rounding that does not work on i686:
 # https://bugs.ruby-lang.org/issues/13980
-Patch10: ruby-2.3.5-Revert-experimental-rounding-on-i686.patch
+Patch10: ruby/ruby-2.3.5-Revert-experimental-rounding-on-i686.patch
 # Do not freeze strings in generated .gemspec. This causes regressions
 # and FTBFS in Fedora packages. This is revert of:
 # https://github.com/rubygems/rubygems/commit/8eda3272d28010c768a05620de776e5a8195c1ae
 # https://lists.fedoraproject.org/archives/list/ruby-sig@lists.fedoraproject.org/message/NLZRTNIMG7NB5V3D4PAQKQLYEKC2TQSY/
-Patch100: ruby-2.3.3-Revert-use-frozen-strings-in-serialized-specs.patch
+Patch100: ruby/ruby-2.3.3-Revert-use-frozen-strings-in-serialized-specs.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
