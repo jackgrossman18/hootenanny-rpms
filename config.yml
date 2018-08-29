@@ -13,6 +13,7 @@ versions:
   osmosis: &osmosis_version '0.46-1'
   postgis: &postgis_version '2.3.5-1'
   postgresql: &pg_version '9.5'
+  ruby: &ruby_version '2.3.7-1'
   stxxl: &stxxl_version '1.3.1-1'
   su-exec: &suexec_version '0.2-1'
   tomcat8: &tomcat8_version '8.5.32-1'
@@ -66,6 +67,9 @@ images:
         buildrequires: true
         dockerfile: 'docker/Dockerfile.rpmbuild-generic'
     - rpmbuild-nodejs:
+        buildrequires: true
+        dockerfile: 'docker/Dockerfile.rpmbuild-generic'
+    - rpmbuild-ruby:
         buildrequires: true
         dockerfile: 'docker/Dockerfile.rpmbuild-generic'
     - run-base:
@@ -172,6 +176,9 @@ rpms:
     image: rpmbuild-generic
     version: *osmosis_version
     arch: noarch
+  ruby:
+    image: rpmbuild-ruby
+    version: *ruby_version
   su-exec:
     image: rpmbuild-generic
     version: *suexec_version

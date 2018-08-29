@@ -274,6 +274,10 @@ rpmbuild-pgdg: \
 	rpmbuild-generic \
 	.vagrant/machines/rpmbuild-pgdg/docker/id
 
+rpmbuild-ruby: \
+	rpmbuild-generic \
+	.vagrant/machines/rpmbuild-ruby/docker/id
+
 # PostGIS container requires GDAL RPMs.
 rpmbuild-postgis: \
 	hoot-gdal \

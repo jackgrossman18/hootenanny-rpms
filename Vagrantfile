@@ -273,7 +273,8 @@ Vagrant.configure(2) do |config|
      'rpmbuild-glpk',
      'rpmbuild-libgeotiff',
      'rpmbuild-libkml',
-     'rpmbuild-nodejs']
+     'rpmbuild-nodejs',
+     'rpmbuild-ruby']
   ).each do |name, options|
     rpmbuild(config, name, options)
   end
