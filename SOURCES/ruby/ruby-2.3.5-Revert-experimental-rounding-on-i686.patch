@@ -1,0 +1,81 @@
+From 2dfde7e8586cf35318b6053410dba74fe9f06f8d Mon Sep 17 00:00:00 2001
+From: usa <usa@b2dd03c8-39d4-4d8f-98ff-823fe69b080e>
+Date: Sun, 30 Apr 2017 13:27:17 +0000
+Subject: [PATCH] REVERTED: merge revision(s) 55604,55612: [Backport #13138]
+
+  * numeric.c (flo_round): [EXPERIMENTAL] adjust the case that the
+    receiver is close to the exact but unrepresentable middle value
+    of two values in the given precision.
+    http://d.hatena.ne.jp/hnw/20160702
+
+  numeric.c: round as double
+
+  * numeric.c (flo_round): compare as double, not long double with
+    i387.
+
+git-svn-id: svn+ssh://ci.ruby-lang.org/ruby/branches/ruby_2_3@58513 b2dd03c8-39d4-4d8f-98ff-823fe69b080e
+---
+ ChangeLog               |    7 -------
+ test/ruby/test_float.rb |    5 -----
+ 2 files changed, 12 deletions(-)
+
+diff --git a/ChangeLog b/ChangeLog
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -604,13 +604,6 @@
+ 	  to check if no library is required, instead of AC_CHECK_LIB.
+ 	  [ruby-core:79368] [Bug #13175]
+ 
+-Sun Apr 30 22:24:25 2017  Nobuyoshi Nakada  <nobu@ruby-lang.org>
+-
+-	* numeric.c (flo_round): [EXPERIMENTAL] adjust the case that the
+-	  receiver is close to the exact but unrepresentable middle value
+-	  of two values in the given precision.
+-	  http://d.hatena.ne.jp/hnw/20160702
+-
+ Sun Apr  9 22:21:23 2017  NAKAMURA Usaku  <usa@ruby-lang.org>
+ 
+ 	thread.c: rb_thread_fd_close [ci skip]
+diff --git a/numeric.c b/numeric.c
++-- a/numeric.c
+@@ -1786,7 +1786,7 @@
+ flo_round(int argc, VALUE *argv, VALUE num)
+ {
+     VALUE nd;
++    double number, f;
+-    double number, f, x;
+     int ndigits = 0;
+     int binexp;
+     enum {float_dig = DBL_DIG+2};
+@@ -1828,14 +1821,8 @@
+ 	return DBL2NUM(0);
+     }
+     f = pow(10, ndigits);
++    return DBL2NUM(round(number * f) / f);
++}
+-    x = round(number * f);
+-    if (x > 0) {
+-	if ((double)((x + 0.5) / f) <= number) x += 1;
+-    }
+-    else {
+-	if ((double)((x - 0.5) / f) >= number) x -= 1;
+-    }
+-    return DBL2NUM(x / f);}
+ 
+ /*
+  *  call-seq:
+diff --git a/test/ruby/test_float.rb b/test/ruby/test_float.rb
+--- a/test/ruby/test_float.rb
++++ b/test/ruby/test_float.rb
+@@ -444,11 +444,6 @@
+     assert_raise(TypeError) {1.0.round(nil)}
+     def (prec = Object.new).to_int; 2; end
+     assert_equal(1.0, 0.998.round(prec))
+-
+-    assert_equal(+5.02, +5.015.round(2))
+-    assert_equal(-5.02, -5.015.round(2))
+-    assert_equal(+1.26, +1.255.round(2))
+-    assert_equal(-1.26, -1.255.round(2))
+   end
+ 
+   VS = [

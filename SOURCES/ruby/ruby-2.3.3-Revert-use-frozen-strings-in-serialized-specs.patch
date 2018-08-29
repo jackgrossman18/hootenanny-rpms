@@ -1,0 +1,245 @@
+From b073f9af733254ea14111f6a9a6785acdbba8fd7 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?V=C3=ADt=20Ondruch?= <vondruch@redhat.com>
+Date: Thu, 1 Dec 2016 12:10:00 +0100
+Subject: [PATCH] Revert "use frozen strings in serialized specs"
+
+This reverts commit 8eda3272d28010c768a05620de776e5a8195c1ae.
+---
+ lib/rubygems/specification.rb           |   8 +--
+ test/rubygems/test_gem_specification.rb | 120 ++++++++++++++++----------------
+ 2 files changed, 64 insertions(+), 64 deletions(-)
+
+diff --git a/lib/rubygems/specification.rb b/lib/rubygems/specification.rb
+index 7128532..654996a 100644
+--- a/lib/rubygems/specification.rb
++++ b/lib/rubygems/specification.rb
+@@ -2337,7 +2337,7 @@ class Gem::Specification < Gem::BasicSpecification
+ 
+   def ruby_code(obj)
+     case obj
+-    when String            then obj.dump + ".freeze"
++    when String            then obj.dump
+     when Array             then '[' + obj.map { |x| ruby_code x }.join(", ") + ']'
+     when Hash              then
+       seg = obj.keys.sort.map { |k| "#{k.to_s.dump} => #{obj[k].to_s.dump}" }
+@@ -2527,14 +2527,14 @@ class Gem::Specification < Gem::BasicSpecification
+       dependencies.each do |dep|
+         req = dep.requirements_list.inspect
+         dep.instance_variable_set :@type, :runtime if dep.type.nil? # HACK
+-        result << "      s.add_#{dep.type}_dependency(%q<#{dep.name}>.freeze, #{req})"
++        result << "      s.add_#{dep.type}_dependency(%q<#{dep.name}>, #{req})"
+       end
+ 
+       result << "    else"
+ 
+       dependencies.each do |dep|
+         version_reqs_param = dep.requirements_list.inspect
+-        result << "      s.add_dependency(%q<#{dep.name}>.freeze, #{version_reqs_param})"
++        result << "      s.add_dependency(%q<#{dep.name}>, #{version_reqs_param})"
+       end
+ 
+       result << '    end'
+@@ -2542,7 +2542,7 @@ class Gem::Specification < Gem::BasicSpecification
+       result << "  else"
+       dependencies.each do |dep|
+         version_reqs_param = dep.requirements_list.inspect
+-        result << "    s.add_dependency(%q<#{dep.name}>.freeze, #{version_reqs_param})"
++        result << "    s.add_dependency(%q<#{dep.name}>, #{version_reqs_param})"
+       end
+       result << "  end"
+     end
+diff --git a/test/rubygems/test_gem_specification.rb b/test/rubygems/test_gem_specification.rb
+index dc7b134..204e100 100644
+--- a/test/rubygems/test_gem_specification.rb
++++ b/test/rubygems/test_gem_specification.rb
+@@ -2284,30 +2284,30 @@ dependencies: []
+ # stub: a 2 ruby lib\0other
+ 
+ Gem::Specification.new do |s|
+-  s.name = "a".freeze
++  s.name = "a"
+   s.version = "2"
+ 
+-  s.required_rubygems_version = Gem::Requirement.new(\"> 0\".freeze) if s.respond_to? :required_rubygems_version=
+-  s.require_paths = ["lib".freeze, "other".freeze]
+-  s.authors = ["A User".freeze]
++  s.required_rubygems_version = Gem::Requirement.new(\"> 0\") if s.respond_to? :required_rubygems_version=
++  s.require_paths = ["lib", "other"]
++  s.authors = ["A User"]
+   s.date = "#{Gem::Specification::TODAY.strftime "%Y-%m-%d"}"
+-  s.description = "This is a test description".freeze
+-  s.email = "example@example.com".freeze
+-  s.files = ["lib/code.rb".freeze]
+-  s.homepage = "http://example.com".freeze
+-  s.rubygems_version = "#{Gem::VERSION}".freeze
+-  s.summary = "this is a summary".freeze
++  s.description = "This is a test description"
++  s.email = "example@example.com"
++  s.files = ["lib/code.rb"]
++  s.homepage = "http://example.com"
++  s.rubygems_version = "#{Gem::VERSION}"
++  s.summary = "this is a summary"
+ 
+   if s.respond_to? :specification_version then
+     s.specification_version = #{Gem::Specification::CURRENT_SPECIFICATION_VERSION}
+ 
+     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
+-      s.add_runtime_dependency(%q<b>.freeze, [\"= 1\"])
++      s.add_runtime_dependency(%q<b>, [\"= 1\"])
+     else
+-      s.add_dependency(%q<b>.freeze, [\"= 1\"])
++      s.add_dependency(%q<b>, [\"= 1\"])
+     end
+   else
+-    s.add_dependency(%q<b>.freeze, [\"= 1\"])
++    s.add_dependency(%q<b>, [\"= 1\"])
+   end
+ end
+     SPEC
+@@ -2333,18 +2333,18 @@ end
+ # stub: a 2 ruby lib
+ 
+ Gem::Specification.new do |s|
+-  s.name = "a".freeze
++  s.name = "a"
+   s.version = "2"
+ 
+-  s.required_rubygems_version = Gem::Requirement.new(\"> 0\".freeze) if s.respond_to? :required_rubygems_version=
+-  s.require_paths = ["lib".freeze]
+-  s.authors = ["A User".freeze]
++  s.required_rubygems_version = Gem::Requirement.new(\"> 0\") if s.respond_to? :required_rubygems_version=
++  s.require_paths = ["lib"]
++  s.authors = ["A User"]
+   s.date = "#{Gem::Specification::TODAY.strftime "%Y-%m-%d"}"
+-  s.description = "This is a test description".freeze
+-  s.email = "example@example.com".freeze
+-  s.homepage = "http://example.com".freeze
+-  s.rubygems_version = "#{Gem::VERSION}".freeze
+-  s.summary = "this is a summary".freeze
++  s.description = "This is a test description"
++  s.email = "example@example.com"
++  s.homepage = "http://example.com"
++  s.rubygems_version = "#{Gem::VERSION}"
++  s.summary = "this is a summary"
+ 
+   s.installed_by_version = "#{Gem::VERSION}" if s.respond_to? :installed_by_version
+ 
+@@ -2352,12 +2352,12 @@ Gem::Specification.new do |s|
+     s.specification_version = #{Gem::Specification::CURRENT_SPECIFICATION_VERSION}
+ 
+     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
+-      s.add_runtime_dependency(%q<b>.freeze, [\"= 1\"])
++      s.add_runtime_dependency(%q<b>, [\"= 1\"])
+     else
+-      s.add_dependency(%q<b>.freeze, [\"= 1\"])
++      s.add_dependency(%q<b>, [\"= 1\"])
+     end
+   else
+-    s.add_dependency(%q<b>.freeze, [\"= 1\"])
++    s.add_dependency(%q<b>, [\"= 1\"])
+   end
+ end
+     SPEC
+@@ -2389,43 +2389,43 @@ end
+ # stub: #{extensions}
+ 
+ Gem::Specification.new do |s|
+-  s.name = "a".freeze
++  s.name = "a"
+   s.version = "1"
+   s.platform = Gem::Platform.new(#{expected_platform})
+ 
+-  s.required_rubygems_version = Gem::Requirement.new(\">= 0\".freeze) if s.respond_to? :required_rubygems_version=
+-  s.require_paths = ["lib".freeze]
+-  s.authors = ["A User".freeze]
++  s.required_rubygems_version = Gem::Requirement.new(\">= 0\") if s.respond_to? :required_rubygems_version=
++  s.require_paths = ["lib"]
++  s.authors = ["A User"]
+   s.date = "#{Gem::Specification::TODAY.strftime "%Y-%m-%d"}"
+-  s.description = "This is a test description".freeze
+-  s.email = "example@example.com".freeze
+-  s.executables = ["exec".freeze]
+-  s.extensions = ["ext/a/extconf.rb".freeze]
+-  s.files = ["bin/exec".freeze, "ext/a/extconf.rb".freeze, "lib/code.rb".freeze, "test/suite.rb".freeze]
+-  s.homepage = "http://example.com".freeze
+-  s.licenses = ["MIT".freeze]
+-  s.requirements = ["A working computer".freeze]
+-  s.rubyforge_project = "example".freeze
+-  s.rubygems_version = "#{Gem::VERSION}".freeze
+-  s.summary = "this is a summary".freeze
+-  s.test_files = ["test/suite.rb".freeze]
++  s.description = "This is a test description"
++  s.email = "example@example.com"
++  s.executables = ["exec"]
++  s.extensions = ["ext/a/extconf.rb"]
++  s.files = ["bin/exec", "ext/a/extconf.rb", "lib/code.rb", "test/suite.rb"]
++  s.homepage = "http://example.com"
++  s.licenses = ["MIT"]
++  s.requirements = ["A working computer"]
++  s.rubyforge_project = "example"
++  s.rubygems_version = "#{Gem::VERSION}"
++  s.summary = "this is a summary"
++  s.test_files = ["test/suite.rb"]
+ 
+   if s.respond_to? :specification_version then
+     s.specification_version = 4
+ 
+     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
+-      s.add_runtime_dependency(%q<rake>.freeze, [\"> 0.4\"])
+-      s.add_runtime_dependency(%q<jabber4r>.freeze, [\"> 0.0.0\"])
+-      s.add_runtime_dependency(%q<pqa>.freeze, [\"<= 0.6\", \"> 0.4\"])
++      s.add_runtime_dependency(%q<rake>, [\"> 0.4\"])
++      s.add_runtime_dependency(%q<jabber4r>, [\"> 0.0.0\"])
++      s.add_runtime_dependency(%q<pqa>, [\"<= 0.6\", \"> 0.4\"])
+     else
+-      s.add_dependency(%q<rake>.freeze, [\"> 0.4\"])
+-      s.add_dependency(%q<jabber4r>.freeze, [\"> 0.0.0\"])
+-      s.add_dependency(%q<pqa>.freeze, [\"<= 0.6\", \"> 0.4\"])
++      s.add_dependency(%q<rake>, [\"> 0.4\"])
++      s.add_dependency(%q<jabber4r>, [\"> 0.0.0\"])
++      s.add_dependency(%q<pqa>, [\"<= 0.6\", \"> 0.4\"])
+     end
+   else
+-    s.add_dependency(%q<rake>.freeze, [\"> 0.4\"])
+-    s.add_dependency(%q<jabber4r>.freeze, [\"> 0.0.0\"])
+-    s.add_dependency(%q<pqa>.freeze, [\"<= 0.6\", \"> 0.4\"])
++    s.add_dependency(%q<rake>, [\"> 0.4\"])
++    s.add_dependency(%q<jabber4r>, [\"> 0.0.0\"])
++    s.add_dependency(%q<pqa>, [\"<= 0.6\", \"> 0.4\"])
+   end
+ end
+     SPEC
+@@ -3324,20 +3324,20 @@ Did you mean 'Ruby'?
+ # stub: m 1 ruby lib
+ 
+ Gem::Specification.new do |s|
+-  s.name = "m".freeze
++  s.name = "m"
+   s.version = "1"
+ 
+-  s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
++  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+   s.metadata = { "one" => "two", "two" => "three" } if s.respond_to? :metadata=
+-  s.require_paths = ["lib".freeze]
+-  s.authors = ["A User".freeze]
++  s.require_paths = ["lib"]
++  s.authors = ["A User"]
+   s.date = "#{Gem::Specification::TODAY.strftime("%Y-%m-%d")}"
+-  s.description = "This is a test description".freeze
+-  s.email = "example@example.com".freeze
+-  s.files = ["lib/code.rb".freeze]
+-  s.homepage = "http://example.com".freeze
+-  s.rubygems_version = "#{Gem::VERSION}".freeze
+-  s.summary = "this is a summary".freeze
++  s.description = "This is a test description"
++  s.email = "example@example.com"
++  s.files = ["lib/code.rb"]
++  s.homepage = "http://example.com"
++  s.rubygems_version = "#{Gem::VERSION}"
++  s.summary = "this is a summary"
+ end
+     EOF
+ 
+-- 
+2.10.2
+
