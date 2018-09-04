@@ -1,0 +1,115 @@
+From 584b5929f9b769c4d0b03e322a9fddf2b2dd3454 Mon Sep 17 00:00:00 2001
+From: nobu <nobu@b2dd03c8-39d4-4d8f-98ff-823fe69b080e>
+Date: Sun, 1 Apr 2018 13:02:11 +0000
+Subject: [PATCH] test_time_tz.rb: Kiritimati tzdata fix
+
+* test/ruby/test_time_tz.rb (gen_zdump_test): fix the expected
+  data at the Kiritimati's skip of New Year's Eve 1994.
+  [Bug #14655]
+
+git-svn-id: svn+ssh://ci.ruby-lang.org/ruby/trunk@63055 b2dd03c8-39d4-4d8f-98ff-823fe69b080e
+---
+ test/ruby/test_time_tz.rb | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/test/ruby/test_time_tz.rb b/test/ruby/test_time_tz.rb
+index dfe139033ed3..ac5f81892878 100644
+--- a/test/ruby/test_time_tz.rb
++++ b/test/ruby/test_time_tz.rb
+@@ -364,9 +364,18 @@ def self.gen_zdump_test(data)
+ Europe/London  Sun Aug 10 01:00:00 1947 UTC = Sun Aug 10 02:00:00 1947 BST isdst=1 gmtoff=3600
+ Europe/London  Sun Nov  2 01:59:59 1947 UTC = Sun Nov  2 02:59:59 1947 BST isdst=1 gmtoff=3600
+ Europe/London  Sun Nov  2 02:00:00 1947 UTC = Sun Nov  2 02:00:00 1947 GMT isdst=0 gmtoff=0
++End
++  if CORRECT_KIRITIMATI_SKIP_1994
++    gen_zdump_test <<'End'
++Pacific/Kiritimati  Sat Dec 31 09:59:59 1994 UTC = Fri Dec 30 23:59:59 1994 LINT isdst=0 gmtoff=-36000
++Pacific/Kiritimati  Sat Dec 31 10:00:00 1994 UTC = Sun Jan  1 00:00:00 1995 LINT isdst=0 gmtoff=50400
++End
++  else
++    gen_zdump_test <<'End'
+ Pacific/Kiritimati  Sun Jan  1 09:59:59 1995 UTC = Sat Dec 31 23:59:59 1994 LINT isdst=0 gmtoff=-36000
+ Pacific/Kiritimati  Sun Jan  1 10:00:00 1995 UTC = Mon Jan  2 00:00:00 1995 LINT isdst=0 gmtoff=50400
+ End
++  end
+   gen_zdump_test <<'End' if has_right_tz
+ right/America/Los_Angeles  Fri Jun 30 23:59:60 1972 UTC = Fri Jun 30 16:59:60 1972 PDT isdst=1 gmtoff=-25200
+ right/America/Los_Angeles  Wed Dec 31 23:59:60 2008 UTC = Wed Dec 31 15:59:60 2008 PST isdst=0 gmtoff=-28800
+--
+
+From 2965c2d4df78e6f5acf8759f84c88ce14a4e70f1 Mon Sep 17 00:00:00 2001
+From: nobu <nobu@b2dd03c8-39d4-4d8f-98ff-823fe69b080e>
+Date: Sun, 1 Apr 2018 02:00:36 +0000
+Subject: [PATCH] test_time_tz.rb: Kiritimati tzdata fix
+
+* test/ruby/test_time_tz.rb (TestTimeTZ#test_pacific_kiritimati):
+  fix the expected data at the skip of New Year's Eve 1994.
+  [Bug #14655]
+
+git-svn-id: svn+ssh://ci.ruby-lang.org/ruby/trunk@63054 b2dd03c8-39d4-4d8f-98ff-823fe69b080e
+---
+ test/ruby/test_time_tz.rb | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
+
+diff --git a/test/ruby/test_time_tz.rb b/test/ruby/test_time_tz.rb
+index 39b830d28a3d..dfe139033ed3 100644
+--- a/test/ruby/test_time_tz.rb
++++ b/test/ruby/test_time_tz.rb
+@@ -89,6 +89,9 @@ def group_by(e, &block)
+       Time.local(1951, 5, 6, 1, 0, 0).dst?   # DST with fixed tzdata
+     end
+   }
++  CORRECT_KIRITIMATI_SKIP_1994 = with_tz("Pacific/Kiritimati") {
++    Time.local(1994, 12, 31, 0, 0, 0).year == 1995
++  }
+ 
+   def time_to_s(t)
+     t.to_s
+@@ -178,9 +181,17 @@ def test_europe_lisbon
+ 
+   def test_pacific_kiritimati
+     with_tz(tz="Pacific/Kiritimati") {
+-      assert_time_constructor(tz, "1994-12-31 23:59:59 -1000", :local, [1994,12,31,23,59,59])
+-      assert_time_constructor(tz, "1995-01-02 00:00:00 +1400", :local, [1995,1,1,0,0,0])
+-      assert_time_constructor(tz, "1995-01-02 23:59:59 +1400", :local, [1995,1,1,23,59,59])
++      assert_time_constructor(tz, "1994-12-30 00:00:00 -1000", :local, [1994,12,30,0,0,0])
++      assert_time_constructor(tz, "1994-12-30 23:59:59 -1000", :local, [1994,12,30,23,59,59])
++      if CORRECT_KIRITIMATI_SKIP_1994
++        assert_time_constructor(tz, "1995-01-01 00:00:00 +1400", :local, [1994,12,31,0,0,0])
++        assert_time_constructor(tz, "1995-01-01 23:59:59 +1400", :local, [1994,12,31,23,59,59])
++        assert_time_constructor(tz, "1995-01-01 00:00:00 +1400", :local, [1995,1,1,0,0,0])
++      else
++        assert_time_constructor(tz, "1994-12-31 23:59:59 -1000", :local, [1994,12,31,23,59,59])
++        assert_time_constructor(tz, "1995-01-02 00:00:00 +1400", :local, [1995,1,1,0,0,0])
++        assert_time_constructor(tz, "1995-01-02 23:59:59 +1400", :local, [1995,1,1,23,59,59])
++      end
+       assert_time_constructor(tz, "1995-01-02 00:00:00 +1400", :local, [1995,1,2,0,0,0])
+     }
+   end
+--
+
+From a0e6607a8172f9eaf9a15f03065736deb2035771 Mon Sep 17 00:00:00 2001
+From: nobu <nobu@b2dd03c8-39d4-4d8f-98ff-823fe69b080e>
+Date: Sun, 1 Apr 2018 13:16:14 +0000
+Subject: [PATCH] test_time_tz.rb: Lisbon tzdata fix
+
+* test/ruby/test_time_tz.rb (gen_variational_zdump_test): Update
+  Lisbon zdump data, which fixed the 1912-01-01 transition for
+  Portugual and its colonies.  [Bug #14655]
+
+git-svn-id: svn+ssh://ci.ruby-lang.org/ruby/trunk@63056 b2dd03c8-39d4-4d8f-98ff-823fe69b080e
+---
+ test/ruby/test_time_tz.rb | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/test/ruby/test_time_tz.rb b/test/ruby/test_time_tz.rb
+index ac5f81892878..b32caff9c539 100644
+--- a/test/ruby/test_time_tz.rb
++++ b/test/ruby/test_time_tz.rb
+@@ -434,5 +434,6 @@ def self.gen_variational_zdump_test(hint, data)
+   gen_variational_zdump_test "lisbon", <<'End' if has_lisbon_tz
+ Europe/Lisbon  Mon Jan  1 00:36:31 1912 UTC = Sun Dec 31 23:59:59 1911 LMT isdst=0 gmtoff=-2192
+ Europe/Lisbon  Mon Jan  1 00:36:44 1912 UT = Sun Dec 31 23:59:59 1911 LMT isdst=0 gmtoff=-2205
++Europe/Lisbon  Sun Dec 31 23:59:59 1911 UT = Sun Dec 31 23:23:14 1911 LMT isdst=0 gmtoff=-2205
+ End
+ end

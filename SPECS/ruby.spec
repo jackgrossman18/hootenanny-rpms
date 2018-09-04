@@ -148,6 +148,8 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # Revert experimental rounding that does not work on i686:
 # https://bugs.ruby-lang.org/issues/13980
 Patch10: ruby-2.3.5-Revert-experimental-rounding-on-i686.patch
+# https://bugs.ruby-lang.org/issues/14655
+Patch11: ruby-2.5.1-TestTimeTZ-test-failures-Kiritimati-and-Lisbon.patch
 # Do not freeze strings in generated .gemspec. This causes regressions
 # and FTBFS in Fedora packages. This is revert of:
 # https://github.com/rubygems/rubygems/commit/8eda3272d28010c768a05620de776e5a8195c1ae
@@ -217,7 +219,6 @@ Requires:   rubygem(psych) >= %{psych_version}
 Provides:   gem = %{version}-%{release}
 Provides:   ruby(rubygems) = %{version}-%{release}
 # https://github.com/rubygems/rubygems/pull/1189#issuecomment-121600910
-Provides:   bundled(rubygem(molinillo)) = %{molinillo_version}
 Provides:   bundled(rubygem-molinillo) = %{molinillo_version}
 BuildArch:  noarch
 
@@ -276,7 +277,7 @@ Summary:    A tool to generate HTML and command-line documentation for Ruby proj
 Version:    %{rdoc_version}
 Group:      Development/Libraries
 # SIL: lib/rdoc/generator/template/darkfish/css/fonts.css
-License:    GPLv2 and Ruby and MIT and SIL
+License:    GPLv2 and Ruby and MIT and OFL
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Requires:   ruby(irb) = %{irb_version}
@@ -308,7 +309,7 @@ This package contains documentation for %{name}.
 Summary:    BigDecimal provides arbitrary-precision floating point decimal arithmetic
 Version:    %{bigdecimal_version}
 Group:      Development/Libraries
-License:    GPL+ or Artistic
+License:    Ruby or BSD
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   rubygem(bigdecimal) = %{version}-%{release}
@@ -334,6 +335,7 @@ License:    MIT
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   rubygem(did_you_mean) = %{version}-%{release}
+BuildArch:  noarch
 
 %description -n rubygem-did_you_mean
 "did you mean?" experience in Ruby: the error message will tell you the right
@@ -434,6 +436,7 @@ Group:      Development/Libraries
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   rubygem(net-telnet) = %{version}-%{release}
+BuildArch:  noarch
 
 %description -n rubygem-net-telnet
 Provides telnet client functionality.
@@ -449,7 +452,7 @@ the output through preprocess() to extract telnet command sequences.
 # The Summary/Description fields are rather poor.
 # https://github.com/test-unit/test-unit/issues/73
 %package -n rubygem-test-unit
-Summary:    Improved version of Test::Unit bundled in Ruby 1.8.x
+Summary:    An xUnit family unit testing framework for Ruby
 Version:    %{test_unit_version}
 Group:      Development/Libraries
 # lib/test/unit/diff.rb is a double license of the Ruby license and PSF license.
@@ -462,10 +465,10 @@ Provides:   rubygem(test-unit) = %{version}-%{release}
 BuildArch:  noarch
 
 %description -n rubygem-test-unit
-Ruby 1.9.x bundles minitest not Test::Unit. Test::Unit
-bundled in Ruby 1.8.x had not been improved but unbundled
-Test::Unit (test-unit) is improved actively.
-
+Test::Unit (test-unit) is unit testing framework for Ruby, based on xUnit
+principles. These were originally designed by Kent Beck, creator of extreme
+programming software development methodology, for Smalltalk's SUnit. It allows
+writing tests, checking results and automated testing in Ruby.
 
 %package tcltk
 Summary:    Tcl/Tk interface for scripting language Ruby
@@ -493,6 +496,7 @@ rm -rf ext/fiddle/libffi*
 %patch7 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
 %patch100 -p1
 
 # Provide an example of usage of the tapset:
@@ -980,3 +984,5 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Tue Sep 04 2018 Justin Bronn <justin.bronn@radiantsolutions.com> - 2.3.7-1
+- Initial release, Ruby 2.3.7.
