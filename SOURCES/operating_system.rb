@@ -87,37 +87,38 @@ module Gem
     # Remove methods we are going to override. This avoids "method redefined;"
     # warnings otherwise issued by Ruby.
 
+    remove_method :operating_system_defaults if method_defined? :operating_system_defaults
     remove_method :default_dir if method_defined? :default_dir
     remove_method :default_path if method_defined? :default_path
-    remove_method :default_bindir if method_defined? :default_bindir
     remove_method :default_ext_dir_for if method_defined? :default_ext_dir_for
+
+    ##
+    # Regular user installs into user directory, root manages /usr/local.
+
+    def operating_system_defaults
+      unless opt_build_root?
+        options = if Process.uid == 0
+          "--install-dir=#{Gem.default_dirs[:local][:gem_dir]} --bindir #{Gem.default_dirs[:local][:bin_dir]}"
+        else
+          "--user-install --bindir #{File.join [Dir.home, 'bin']}"
+        end
+
+        {"gem" => options}
+      else
+        {}
+      end
+    end
 
     ##
     # RubyGems default overrides.
 
     def default_dir
-      if opt_build_root?
-        Gem.default_dirs[:system][:gem_dir]
-      elsif Process.uid == 0
-        Gem.default_dirs[:local][:gem_dir]
-      else
-        Gem.user_dir
-      end
+      Gem.default_dirs[:system][:gem_dir]
     end
 
     def default_path
       path = default_dirs.collect {|location, paths| paths[:gem_dir]}
       path.unshift Gem.user_dir if File.exist? Gem.user_home
-    end
-
-    def default_bindir
-      if opt_build_root?
-        Gem.default_dirs[:system][:bin_dir]
-      elsif Process.uid == 0
-        Gem.default_dirs[:local][:bin_dir]
-      else
-        File.join [Dir.home, 'bin']
-      end
     end
 
     def default_ext_dir_for base_dir

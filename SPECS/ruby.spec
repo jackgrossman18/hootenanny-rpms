@@ -161,6 +161,8 @@ Patch12: ruby-2.5.1-TestTimeTZ-test-failures-Kiritimati-and-Lisbon.patch
 Patch100: ruby-2.3.3-Revert-use-frozen-strings-in-serialized-specs.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
+Requires: ruby(rubygems) >= %{rubygems_version}
+Requires: rubygem(bigdecimal) >= %{bigdecimal_version}
 
 BuildRequires: autoconf
 BuildRequires: gdbm-devel
@@ -219,7 +221,10 @@ Version:    %{rubygems_version}
 Group:      Development/Libraries
 License:    Ruby or MIT
 Requires:   ruby(release)
+Requires:   rubygem(rdoc) >= %{rdoc_version}
+Requires:   rubygem(io-console) >= %{io_console_version}
 Requires:   rubygem(psych) >= %{psych_version}
+Requires:   ca-certificates
 Provides:   gem = %{version}-%{release}
 Provides:   ruby(rubygems) = %{version}-%{release}
 # https://github.com/rubygems/rubygems/pull/1189#issuecomment-121600910
@@ -989,5 +994,5 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Tue Sep 04 2018 Justin Bronn <justin.bronn@radiantsolutions.com> - 2.3.7-1
+* Thu Sep 13 2018 Justin Bronn <justin.bronn@radiantsolutions.com> - 2.3.7-1
 - Initial release, Ruby 2.3.7.
