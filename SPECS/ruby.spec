@@ -148,8 +148,12 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # Revert experimental rounding that does not work on i686:
 # https://bugs.ruby-lang.org/issues/13980
 Patch10: ruby-2.3.5-Revert-experimental-rounding-on-i686.patch
+# CVE-2017-17790 - Command injection in lib/resolv.rb:lazy_initialize() allows
+# arbitrary code execution
+# https://bugs.ruby-lang.org/issues/14205
+Patch11: ruby-2.5.0-fix-command-injection.patch
 # https://bugs.ruby-lang.org/issues/14655
-Patch11: ruby-2.5.1-TestTimeTZ-test-failures-Kiritimati-and-Lisbon.patch
+Patch12: ruby-2.5.1-TestTimeTZ-test-failures-Kiritimati-and-Lisbon.patch
 # Do not freeze strings in generated .gemspec. This causes regressions
 # and FTBFS in Fedora packages. This is revert of:
 # https://github.com/rubygems/rubygems/commit/8eda3272d28010c768a05620de776e5a8195c1ae
@@ -497,6 +501,7 @@ rm -rf ext/fiddle/libffi*
 %patch9 -p1
 %patch10 -p1
 %patch11 -p1
+%patch12 -p1
 %patch100 -p1
 
 # Provide an example of usage of the tapset:

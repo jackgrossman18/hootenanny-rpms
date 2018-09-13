@@ -1,0 +1,76 @@
+From ba0d5f7a6df6ba5545c3ce0b09e107e10d082d49 Mon Sep 17 00:00:00 2001
+From: nobu <nobu@b2dd03c8-39d4-4d8f-98ff-823fe69b080e>
+Date: Wed, 20 Dec 2017 04:18:31 +0000
+Subject: Fixed command Injection
+
+* resolv.rb (Resolv::Hosts#lazy_initialize): fixed potential
+  command Injection in Hosts::new() by use of Kernel#open.
+  [Fix GH-1777] [ruby-core:84347] [Bug #14205]
+
+From: Drigg3r <drigg3r@yandex.com>
+
+git-svn-id: svn+ssh://ci.ruby-lang.org/ruby/trunk@61349 b2dd03c8-39d4-4d8f-98ff-823fe69b080e
+---
+diff --git a/lib/resolv.rb b/lib/resolv.rb
+index c977584..5689b44 100644
+--- a/lib/resolv.rb
++++ b/lib/resolv.rb
+@@ -189,7 +189,7 @@ def lazy_initialize # :nodoc:
+         unless @initialized
+           @name2addr = {}
+           @addr2name = {}
+-          open(@filename, 'rb') {|f|
++          File.open(@filename, 'rb') {|f|
+             f.each {|line|
+               line.sub!(/#.*/, '')
+               addr, hostname, *aliases = line.split(/\s+/)
+@@ -969,7 +969,7 @@ def Config.parse_resolv_conf(filename)
+         nameserver = []
+         search = nil
+         ndots = 1
+-        open(filename, 'rb') {|f|
++        File.open(filename, 'rb') {|f|
+           f.each {|line|
+             line.sub!(/[#;].*/, '')
+             keyword, *args = line.split(/\s+/)
+diff --git a/test/resolv/test_addr.rb b/test/resolv/test_addr.rb
+index 4a2df5b..14ec265 100644
+--- a/test/resolv/test_addr.rb
++++ b/test/resolv/test_addr.rb
+@@ -27,4 +27,15 @@ def test_invalid_byte_comment
+       end
+     end
+   end
++
++  def test_hosts_by_command
++    Dir.mktmpdir do |dir|
++      Dir.chdir(dir) do
++        hosts = Resolv::Hosts.new("|echo error")
++        assert_raise(Errno::ENOENT, Errno::EINVAL) do
++          hosts.each_name("") {}
++        end
++      end
++    end
++  end
+ end
+diff --git a/test/resolv/test_dns.rb b/test/resolv/test_dns.rb
+index efd657a..96d3414 100644
+--- a/test/resolv/test_dns.rb
++++ b/test/resolv/test_dns.rb
+@@ -180,6 +180,16 @@ def test_invalid_byte_comment
+     end
+   end
+ 
++  def test_resolv_conf_by_command
++    Dir.mktmpdir do |dir|
++      Dir.chdir(dir) do
++        assert_raise(Errno::ENOENT, Errno::EINVAL) do
++          Resolv::DNS::Config.parse_resolv_conf("|echo foo")
++        end
++      end
++    end
++  end
++
+   def test_dots_diffences
+     name1 = Resolv::DNS::Name.create("example.org")
+     name2 = Resolv::DNS::Name.create("ex.ampl.eo.rg")
