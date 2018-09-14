@@ -254,6 +254,17 @@ def rpmbuild(config, name, options)
         rpmbuild_cmd << macro
       end
 
+      # Set any with/without options.
+      options.fetch('with', []).each do |with_option|
+        rpmbuild_cmd << '--with'
+        rpmbuild_cmd << with_option
+      end
+
+      options.fetch('without', []).each do |without_option|
+        rpmbuild_cmd << '--without'
+        rpmbuild_cmd << without_option
+      end
+
       # Default to using `rpmbuild -bb`.
       rpmbuild_cmd << options.fetch('build_type', '-bb')
       rpmbuild_cmd << options.fetch('spec_file', "SPECS/#{name}.spec")
@@ -310,12 +321,12 @@ Vagrant.configure(2) do |config|
     build_container(config, name, options)
   end
 
-  # RubyGem dependencies can be build when Ruby RPMs are present.
-  $images['rubygems'].each do |name, options|
+  # RubyGem-based dependencies can be build when Ruby RPMs are present.
+  $images['ruby'].each do |name, options|
     build_container(config, name, options)
   end
 
-  collect_rpms(['rpmbuild-rubygems']).each do |name, options|
+  collect_rpms(['rpmbuild-bundler']).each do |name, options|
     rpmbuild(config, name, options)
   end
 end
