@@ -230,7 +230,12 @@ def rpmbuild(config, name, options)
       rpmbuild_cmd = ['rpmbuild']
 
       # Pass in the RPM version/release information via CLI define statements.
-      version, release = options['version'].split('-')
+      if options.key?('release')
+        version = options['version']
+        release = options['release']
+      else
+        version, release = options['version'].split('-')
+      end
       defines = options.fetch('defines', {})
       defines.update(
         {
@@ -303,5 +308,14 @@ Vagrant.configure(2) do |config|
   # on RPMS built previously.
   $images['hoot'].each do |name, options|
     build_container(config, name, options)
+  end
+
+  # RubyGem dependencies can be build when Ruby RPMs are present.
+  $images['rubygems'].each do |name, options|
+    build_container(config, name, options)
+  end
+
+  collect_rpms(['rpmbuild-rubygems']).each do |name, options|
+    rpmbuild(config, name, options)
   end
 end

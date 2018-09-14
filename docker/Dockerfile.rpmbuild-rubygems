@@ -1,0 +1,93 @@
+# Copyright (C) 2018 Radiant Solutions (http://www.radiantsolutions.com)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+FROM hootenanny/rpmbuild-ruby:latest
+
+ARG bigdecimal_version
+ARG did_you_mean_version
+ARG io_console_version
+ARG json_version
+ARG minitest_version
+ARG net_telnet_version
+ARG packages
+ARG power_assert_version
+ARG psych_version
+ARG rake_version
+ARG rdoc_version
+ARG ruby_release
+ARG ruby_version
+ARG rubygems_version
+ARG test_unit_version
+
+LABEL \
+  description="Container for building RubyGems-based RPMs" \
+  maintainer="justin.bronn@radiantsolutions.com" \
+  name="Hootenanny RubyGems RPM Build Image" \
+  vendor="Radiant Solutions"
+
+# Switch to root temporarily for dependency installs.
+USER root
+
+# Copy in all the Ruby RPMs.
+COPY RPMS/x86_64/ruby-${ruby_version}-${ruby_release}${RPMBUILD_DIST}.x86_64.rpm \
+     RPMS/x86_64/ruby-devel-${ruby_version}-${ruby_release}${RPMBUILD_DIST}.x86_64.rpm \
+     RPMS/noarch/ruby-doc-${ruby_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+     RPMS/noarch/ruby-irb-${ruby_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+     RPMS/x86_64/ruby-libs-${ruby_version}-${ruby_release}${RPMBUILD_DIST}.x86_64.rpm \
+     RPMS/x86_64/ruby-tcltk-${ruby_version}-${ruby_release}${RPMBUILD_DIST}.x86_64.rpm \
+     RPMS/x86_64/rubygem-bigdecimal-${bigdecimal_version}-${ruby_release}${RPMBUILD_DIST}.x86_64.rpm \
+     RPMS/noarch/rubygem-did_you_mean-${did_you_mean_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+     RPMS/x86_64/rubygem-io-console-${io_console_version}-${ruby_release}${RPMBUILD_DIST}.x86_64.rpm \
+     RPMS/x86_64/rubygem-json-${json_version}-${ruby_release}${RPMBUILD_DIST}.x86_64.rpm \
+     RPMS/noarch/rubygem-minitest-${minitest_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+     RPMS/noarch/rubygem-net-telnet-${net_telnet_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+     RPMS/noarch/rubygem-power_assert-${power_assert_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+     RPMS/x86_64/rubygem-psych-${psych_version}-${ruby_release}${RPMBUILD_DIST}.x86_64.rpm \
+     RPMS/noarch/rubygem-test-unit-${test_unit_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+     RPMS/noarch/rubygem-rake-${rake_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+     RPMS/noarch/rubygem-rdoc-${rdoc_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+     RPMS/noarch/rubygems-${rubygems_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+     RPMS/noarch/rubygems-devel-${rubygems_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+     /tmp/
+
+# Install all the Ruby RPMs
+RUN yum install -y \
+    /tmp/ruby-${ruby_version}-${ruby_release}${RPMBUILD_DIST}.x86_64.rpm \
+    /tmp/ruby-devel-${ruby_version}-${ruby_release}${RPMBUILD_DIST}.x86_64.rpm \
+    /tmp/ruby-doc-${ruby_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+    /tmp/ruby-irb-${ruby_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+    /tmp/ruby-libs-${ruby_version}-${ruby_release}${RPMBUILD_DIST}.x86_64.rpm \
+    /tmp/ruby-tcltk-${ruby_version}-${ruby_release}${RPMBUILD_DIST}.x86_64.rpm \
+    /tmp/rubygem-bigdecimal-${bigdecimal_version}-${ruby_release}${RPMBUILD_DIST}.x86_64.rpm \
+    /tmp/rubygem-did_you_mean-${did_you_mean_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+    /tmp/rubygem-io-console-${io_console_version}-${ruby_release}${RPMBUILD_DIST}.x86_64.rpm \
+    /tmp/rubygem-json-${json_version}-${ruby_release}${RPMBUILD_DIST}.x86_64.rpm \
+    /tmp/rubygem-minitest-${minitest_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+    /tmp/rubygem-net-telnet-${net_telnet_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+    /tmp/rubygem-power_assert-${power_assert_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+    /tmp/rubygem-psych-${psych_version}-${ruby_release}${RPMBUILD_DIST}.x86_64.rpm \
+    /tmp/rubygem-test-unit-${test_unit_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+    /tmp/rubygem-rake-${rake_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+    /tmp/rubygem-rdoc-${rdoc_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+    /tmp/rubygems-${rubygems_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+    /tmp/rubygems-devel-${rubygems_version}-${ruby_release}${RPMBUILD_DIST}.noarch.rpm \
+    && \
+    rm -f /tmp/*.rpm
+
+# Install any additionally requested packages.
+RUN if [ ! -z "${packages}" ] ; then yum -y install ${packages}; fi && \
+    yum -q -y clean all
+
+# Switch back to RPM build user.
+USER ${RPMBUILD_USER}

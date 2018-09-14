@@ -23,6 +23,7 @@ VAGRANT ?= vagrant
 # All versions use a YAML reference so they only have to be defined once,
 # just grep for this reference and print it out.
 config_reference = $(shell cat config.yml | grep '\&$(1)' | awk '{ print $$3 }' | tr -d "'")
+config_release = $(call config_reference,$(1)_release)
 config_version = $(call config_reference,$(1)_version)
 
 # Where Vagrant puts the Docker container id after it's been created.
@@ -62,6 +63,7 @@ latest_hoot_version_gen = $(subst SOURCES/hootenanny-,,$(subst .tar.gz,,$(call l
 RPMBUILD_DIST := $(call config_reference,rpmbuild_dist)
 rpm_file = RPMS/$(2)/$(1)-$(call config_version,$(1))$(RPMBUILD_DIST).$(2).rpm
 rpm_file2 = RPMS/$(3)/$(1)-$(call config_version,$(2))$(RPMBUILD_DIST).$(3).rpm
+rpm_file3 = RPMS/$(2)/$(1)-$(call config_version,$(1))-$(call config_release,$(1))$(RPMBUILD_DIST).$(2).rpm
 
 # Gets the RPM package name from the filename.
 rpm_package = $(shell echo $(1) | awk '{ split($$0, a, "-"); l = length(a); pkg = a[1]; for (i=2; i<l-1; ++i) pkg = pkg "-" a[i]; print pkg }')
@@ -80,7 +82,7 @@ LIBKML_RPM := $(call rpm_file,libkml,x86_64)
 NODEJS_RPM := $(call rpm_file,nodejs,x86_64)
 OSMOSIS_RPM := $(call rpm_file,osmosis,noarch)
 POSTGIS_RPM := $(call rpm_file2,hoot-postgis23_$(PG_DOTLESS),postgis,x86_64)
-RUBY_RPM := $(call rpm_file,ruby,x86_64)
+RUBY_RPM := $(call rpm_file3,ruby,x86_64)
 STXXL_RPM := $(call rpm_file,stxxl,x86_64)
 SUEXEC_RPM := $(call rpm_file2,su-exec,suexec,x86_64)
 TOMCAT8_RPM := $(call rpm_file,tomcat8,noarch)
@@ -278,6 +280,10 @@ rpmbuild-pgdg: \
 rpmbuild-ruby: \
 	rpmbuild-generic \
 	.vagrant/machines/rpmbuild-ruby/docker/id
+
+rpmbuild-rubygems: \
+	ruby \
+	.vagrant/machines/rpmbuild-rubygems/docker/id
 
 # PostGIS container requires GDAL RPMs.
 rpmbuild-postgis: \
