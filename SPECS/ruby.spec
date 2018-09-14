@@ -1,3 +1,17 @@
+# Required macro parameters to build a Ruby RPM, all must match with
+# what's bundled with the Ruby source:
+#  * bigdecimal_version
+#  * did_you_mean_version
+#  * io_console_version
+#  * json_version
+#  * minitest_version
+#  * power_assert_version
+#  * psych_version
+#  * rake_version
+#  * rdoc_version
+#  * rubygems_version
+#  * net_telnet_version
+#  * test_unit_version
 %global major_version %(echo %{rpmbuild_version} | awk -F. '{ print $1 }')
 %global minor_version %(echo %{rpmbuild_version} | awk -F. '{ print $2 }')
 %global teeny_version %(echo %{rpmbuild_version} | awk -F. '{ print $3 }')
@@ -25,24 +39,11 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.5.2.3
 %global molinillo_version 0.4.1
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
 # http://redmine.ruby-lang.org/issues/5313
 %global irb_version %{ruby_version}
-
-%global bigdecimal_version 1.2.8
-%global did_you_mean_version 1.0.0
-%global io_console_version 0.4.5
-%global json_version 1.8.3.1
-%global minitest_version 5.8.5
-%global power_assert_version 0.2.6
-%global psych_version 2.1.0.1
-%global rake_version 10.4.2
-%global rdoc_version 4.2.1
-%global net_telnet_version 0.1.1
-%global test_unit_version 3.1.5
 
 # Might not be needed in the future, if we are lucky enough.
 # https://bugzilla.redhat.com/show_bug.cgi?id=888262

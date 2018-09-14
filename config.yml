@@ -19,6 +19,21 @@ versions:
   tomcat8: &tomcat8_version '8.5.32-1'
   wamerican-insane: &wamerican_version '7.1-1'
 
+# Versions that correlate to the bundled Ruby version.
+ruby_package_versions: &ruby_package_versions
+  bigdecimal_version: '1.2.8'
+  did_you_mean_version: '1.0.0'
+  io_console_version: '0.4.5'
+  json_version: '1.8.3.1'
+  minitest_version: '5.8.5'
+  power_assert_version: '0.2.6'
+  psych_version: '2.1.0.1'
+  rake_version: '10.4.2'
+  rdoc_version: '4.2.1'
+  rubygems_version: '2.5.2.3'
+  net_telnet_version: '0.1.1'
+  test_unit_version: '3.1.5'
+
 
 maven:
   cache_url: &maven_cache_url 'https://s3.amazonaws.com/hoot-maven/m2-cache.tar.gz'
@@ -72,6 +87,8 @@ images:
     - rpmbuild-ruby:
         buildrequires: true
         dockerfile: 'docker/Dockerfile.rpmbuild-generic'
+        defines:
+          <<: *ruby_package_versions
     - run-base:
         args:
           pg_version: *pg_version
@@ -179,6 +196,8 @@ rpms:
   ruby:
     image: rpmbuild-ruby
     version: *ruby_version
+    defines:
+      <<: *ruby_package_versions
   su-exec:
     image: rpmbuild-generic
     version: *suexec_version
