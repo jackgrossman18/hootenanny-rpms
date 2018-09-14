@@ -17,7 +17,6 @@
 %global ruby_archive %{ruby_archive}-%{?milestone}%{?!milestone:%{?revision:r%{revision}}}
 %endif
 
-
 %global release %{rpmbuild_release}
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
@@ -191,6 +190,7 @@ straight-forward, and extensible.
 Summary:    A Ruby development environment
 Group:      Development/Languages
 Requires:   %{name}%{?_isa} = %{version}-%{release}
+Requires:   redhat-rpm-config
 Requires:   rubygems
 
 %description devel
