@@ -300,8 +300,12 @@ rpmbuild-rubygems: \
 	ruby \
 	.vagrant/machines/rpmbuild-rubygems/docker/id
 
-rpmbuild-bundler: \
+rpmbuild-generic-ruby: \
 	rpmbuild-rubygems \
+	.vagrant/machines/rpmbuild-generic-ruby/docker/id
+
+rpmbuild-bundler: \
+	rpmbuild-generic-ruby \
 	.vagrant/machines/rpmbuild-bundler/docker/id
 
 # Runtime containers
