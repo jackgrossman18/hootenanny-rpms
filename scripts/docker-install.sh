@@ -52,6 +52,14 @@ else
     exit 1
 fi
 
+# Enable IPv6 for Docker.
+sudo bash -c "cat > /etc/docker/daemon.json" <<EOF
+{
+  "ipv6": true,
+  "fixed-cidr-v6": "2001:db8:1::/64"
+}
+EOF
+
 # Enable and start the Docker service
 sudo systemctl enable docker
 sudo systemctl start docker
