@@ -995,5 +995,5 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Thu Sep 13 2018 Justin Bronn <justin.bronn@radiantsolutions.com> - 2.3.7-1
+* Mon Sep 17 2018 Justin Bronn <justin.bronn@radiantsolutions.com> - 2.3.7-1
 - Initial release, Ruby 2.3.7.

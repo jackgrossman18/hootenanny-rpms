@@ -1,5 +1,6 @@
 ---
 versions:
+  bundler: &bundler_version '1.16.4-1'
   dumb-init: &dumbinit_version '1.2.1-1'
   geos: &geos_version '3.6.2-1'
   glpk: &glpk_version '4.64-1'
@@ -160,12 +161,16 @@ images:
           gdal_version: *gdal_version
         buildrequires: true
         spec_file: 'SPECS/hoot-postgis23.spec'
-  rubygems: !!omap
+  ruby: !!omap
     - rpmbuild-rubygems:
         args:
           <<: *ruby_package_versions
           ruby_release: *ruby_release
           ruby_version: *ruby_version
+    - rpmbuild-bundler:
+        dockerfile: 'docker/Dockerfile.rpmbuild-generic-ruby'
+        args:
+          gem_packages: rspec
 
 
 rpms:
@@ -211,6 +216,12 @@ rpms:
     release: *ruby_release
     defines:
       <<: *ruby_package_versions
+  rubygem-bundler:
+    image: rpmbuild-bundler
+    version: *bundler_version
+    arch: noarch
+    with:
+      - tests
   su-exec:
     image: rpmbuild-generic
     version: *suexec_version

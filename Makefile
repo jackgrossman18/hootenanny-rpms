@@ -72,6 +72,7 @@ rpm_package = $(shell echo $(1) | awk '{ split($$0, a, "-"); l = length(a); pkg 
 
 PG_DOTLESS := $(shell echo $(call config_version,pg) | tr -d '.')
 
+BUNDLER_RPM := $(call rpm_file2,rubygem-bundler,bundler,noarch)
 DUMBINIT_RPM := $(call rpm_file2,dumb-init,dumbinit,x86_64)
 GEOS_RPM := $(call rpm_file,geos,x86_64)
 GDAL_RPM := $(call rpm_file2,hoot-gdal,gdal,x86_64)
@@ -277,14 +278,6 @@ rpmbuild-pgdg: \
 	rpmbuild-generic \
 	.vagrant/machines/rpmbuild-pgdg/docker/id
 
-rpmbuild-ruby: \
-	rpmbuild-generic \
-	.vagrant/machines/rpmbuild-ruby/docker/id
-
-rpmbuild-rubygems: \
-	ruby \
-	.vagrant/machines/rpmbuild-rubygems/docker/id
-
 # PostGIS container requires GDAL RPMs.
 rpmbuild-postgis: \
 	hoot-gdal \
@@ -297,6 +290,19 @@ rpmbuild-repo: \
 rpmbuild-sonarqube: \
 	rpmbuild-hoot-release \
 	.vagrant/machines/rpmbuild-sonarqube/docker/id
+
+# Ruby containers
+rpmbuild-ruby: \
+	rpmbuild-generic \
+	.vagrant/machines/rpmbuild-ruby/docker/id
+
+rpmbuild-rubygems: \
+	ruby \
+	.vagrant/machines/rpmbuild-rubygems/docker/id
+
+rpmbuild-bundler: \
+	rpmbuild-rubygems \
+	.vagrant/machines/rpmbuild-bundler/docker/id
 
 # Runtime containers
 run-base: .vagrant/machines/run-base/docker/id
@@ -336,6 +342,7 @@ hoot-words: rpmbuild-generic $(WORDS_RPM)
 hoot-postgis23_$(PG_DOTLESS): rpmbuild-postgis $(POSTGIS_RPM)
 osmosis: rpmbuild-generic $(OSMOSIS_RPM)
 ruby: rpmbuild-ruby $(RUBY_RPM)
+rubygem-bundler: rpmbuild-bundler $(BUNDLER_RPM)
 stxxl: rpmbuild-generic $(STXXL_RPM)
 su-exec: rpmbuild-generic $(SUEXEC_RPM)
 tomcat8: rpmbuild-generic $(TOMCAT8_RPM)
