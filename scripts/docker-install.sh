@@ -53,7 +53,7 @@ else
 fi
 
 # Enable IPv6 for Docker.
-sudo bash -c "cat > /etc/docker/daemon.json" <<EOF
+sudo bash -c "mkdir -m 0700 /etc/docker && cat > /etc/docker/daemon.json" <<EOF
 {
   "ipv6": true,
   "fixed-cidr-v6": "2001:db8:1::/64"
