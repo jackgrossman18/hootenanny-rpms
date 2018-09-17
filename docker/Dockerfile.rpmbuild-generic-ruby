@@ -1,0 +1,38 @@
+# Copyright (C) 2018 Radiant Solutions (http://www.radiantsolutions.com)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+FROM hootenanny/rpmbuild-rubygems:latest
+
+ARG gem_packages
+ARG packages
+
+LABEL \
+  description="Generic container for building RubyGems-based RPMs" \
+  maintainer="justin.bronn@radiantsolutions.com" \
+  name="Hootenanny RubyGem RPM Build Image" \
+  vendor="Radiant Solutions"
+
+# Switch to root temporarily for dependency installs.
+USER root
+
+# Install any additionally requested yum packages.
+RUN if [ ! -z "${packages}" ] ; then yum -y install ${packages}; fi && \
+    yum -q -y clean all
+
+# Install any additionally requested Gems.
+RUN if [ ! -z "${gem_packages}" ] ; then gem install ${gem_packages}; fi && \
+    rm -f /usr/share/gems/cache/*.gem
+
+# Switch back to RPM build user.
+USER ${RPMBUILD_USER}
